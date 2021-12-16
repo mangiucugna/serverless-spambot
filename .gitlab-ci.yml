@@ -1,0 +1,11 @@
+image: google/cloud-sdk:alpine
+stages:
+- deploy
+
+deploy_production:
+  stage: deploy
+  script:
+  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
+  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+  - gcloud --quiet --project $PROJECT_ID functions deploy page_all --runtime python39 --trigger-http --set-env-vars "SLACK_SIGNING_SECRET=$SLACK_SIGNING_SECRET,SLACK_BOT_OAUTH_TOKEN=$SLACK_BOT_OAUTH_TOKEN" --allow-unauthenticated
+  - rm /tmp/$CI_PIPELINE_ID.json
